@@ -4,9 +4,8 @@
 #    curl http://3.238.129.157/   --> returns string "Hello World!"
 #   curl http://3.238.129.157/  --> returns header info
 
-sudo apt-get -y update
-sudo apt-get -y upgrade
-sudo apt-get -y install nginx
-service start nginx
-sudo sh -c 'echo "Hello World!" > /var/www/html/index.html'
-sudo rm /var/www/html/index.nginx-debian.html
+apt-get -y update
+apt-get -y install nginx
+ufw allow 'Nginx HTTP'
+echo 'Hello World!' > /var/www/html/index.nginx-debian.html
+service nginx start
