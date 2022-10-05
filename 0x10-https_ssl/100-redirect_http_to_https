@@ -1,0 +1,32 @@
+global
+   log 127.0.0.1 local0 notice
+   maxconn 2000
+   user haproxy
+   group haproxy
+
+defaults
+   log   global
+   mode  http
+   option  httplog
+   option  dontlognull
+   retries 3
+   option redispatch
+   timeout connect  5000
+   timeout client  10000
+   timeout server  10000
+
+frontend www-http
+   bind   0.0.0.0:80
+   http-request set-header X-Forwarded-Proto http
+   default_backend www-backend
+
+frontend www-https
+    bind   0.0.0.0:443 ssl crt /etc/haproxy/certs/webvickfoo.tech.pem
+    http-request set-header X-Forwarded-Proto https
+    redirect scheme https code 301 if !{ ssl_fc }
+    default_backend www-backend
+
+backend www-backend
+    balance  roundrobin
+    server 10101-web-01 3.238.129.157:80 check
+    server 10101-web-02 3.238.25.121:80 check
