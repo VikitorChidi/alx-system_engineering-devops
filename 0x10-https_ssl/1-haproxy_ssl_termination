@@ -1,27 +1,29 @@
 global
-    log 127.0.0.1 local0 notice
-    maxconn 2000
-    user haproxy
-    group haproxy
+   log 127.0.0.1 local0 notice
+   maxconn 2000
+   user haproxy
+   group haproxy
 
 defaults
-    log     global
-    mode    http
-    option  httplog
-    option  dontlognull
-    retries 3
-    option redispatch
-    timeout connect  5000
-    timeout client  10000
-    timeout server  10000
+   log   global
+   mode  http
+   option  httplog
+   option  dontlognull
+   retries 3
+   option redispatch
+   timeout connect  5000
+   timeout client  10000
+   timeout server  10000
 
-frontend http
-    bind *:80
-    bind *:443 ssl crt /etc/letsencrypt/live/www.webvickfoo.tech/rsa.pem
-    http-request redirect scheme https unless { ssl_fc }
-    default_backend web-backend
+frontend www-https
+    bind   0.0.0.0:80
+    bind   0.0.0.0:443 ssl crt /etc/haproxy/certs/webvickfoo.tech.pem
+    redirect scheme https if !{ ssl_fc }
+    stats uri /haproxy?stats
+    option forwardfor
+    default_backend www-backend
 
-backend web-backend
-    balance roundrobin
-    server 13623-web-01 3.238.129.157:80 check
-    server 13623-web-02 3.238.25.121:80 check
+backend www-backend
+    balance  roundrobin
+    server 10101-web-01 3.238.129.157:80 check
+    server 10101-web-02 3.238.25.121:80 check
