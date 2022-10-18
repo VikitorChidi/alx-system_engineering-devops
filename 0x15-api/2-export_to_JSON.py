@@ -1,30 +1,20 @@
 #!/usr/bin/python3
-""" Script that uses JSONPlaceholder API to get information about employee """
+"""Python script to export data in the JSON format."""
 import json
 import requests
-import sys
+from sys import argv
 
 
 if __name__ == "__main__":
-    url = 'https://jsonplaceholder.typicode.com/'
+    url = "https://jsonplaceholder.typicode.com/"
+    user = requests.get(url + "users/{}".format(argv[1])).json()
+    username = user.get("username")
+    todos = requests.get(url + "todos", params={"userId": argv[1]}).json()
 
-    userid = sys.argv[1]
-    user = '{}users/{}'.format(url, userid)
-    res = requests.get(user)
-    json_o = res.json()
-    name = json_o.get('username')
-
-    todos = '{}todos?userId={}'.format(url, userid)
-    res = requests.get(todos)
-    tasks = res.json()
-    l_task = []
-    for task in tasks:
-        dict_task = {"task": task.get('title'),
-                     "completed": task.get('completed'),
-                     "username": name}
-        l_task.append(dict_task)
-
-    d_task = {str(userid): l_task}
-    filename = '{}.json'.format(userid)
-    with open(filename, mode='w') as f:
-        json.dump(d_task, f)
+    with open("{}.json".format(argv[1]), "w") as jsonfile:
+        json.dump({argv[1]: [{
+            "task": to.get("title"),
+            "completed": to.get("completed"),
+            "username": username
+            } for to in todos
+            ]}, jsonfile)
